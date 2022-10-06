@@ -801,8 +801,8 @@ EOS;
         }
 
         Utils::debugLog("init", ["binding ..."]);
-        self::$glib = \FFI::cdef($glib_decls, $glib_libname);
-        self::$gobject = \FFI::cdef($gobject_decls, $gobject_libname);
+        self::$glib = \FFI::cdef($glib_decls, self::getLibPath() . $glib_libname);
+        self::$gobject = \FFI::cdef($gobject_decls, self::getLibPath() . $gobject_libname);
         self::$vips = \FFI::cdef($vips_decls, self::getLibPath() . $vips_libname);
 
         # Useful for debugging
