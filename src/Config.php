@@ -59,6 +59,11 @@ class Config
     private static ?LoggerInterface $logger = null;
 
     /**
+     * Absolute path for loading vips lib
+     */
+    private static string $lib_path = '';
+
+    /**
      * The FFI handle we use for the glib binary.
      *
      * @internal
@@ -129,6 +134,26 @@ class Config
     public static function getLogger(): ?LoggerInterface
     {
         return self::$logger;
+    }
+
+    /**
+     * Sets an absolute path for the vips library. Useful when it is stored in non-standard locations
+     * and hard to find dynamically.
+     *
+     * @param string $path
+     * @return void
+     */
+    public static function setLibPath(string $path): void
+    {
+        self::$lib_path = rtrim($path, "/");
+    }
+
+    /**
+     * @return string
+     */
+    public static function getLibPath(): string
+    {
+        return self::$lib_path . "/";
     }
 
     /**
@@ -307,7 +332,7 @@ class Config
             int vips_init (const char *argv0);
             const char *vips_error_buffer (void);
             int vips_version(int flag);
-            EOS, $vips_libname);
+            EOS, self::getLibPath() . $vips_libname);
 
         $result = $vips->vips_init("");
         if ($result != 0) {
@@ -778,7 +803,7 @@ EOS;
         Utils::debugLog("init", ["binding ..."]);
         self::$glib = \FFI::cdef($glib_decls, $glib_libname);
         self::$gobject = \FFI::cdef($gobject_decls, $gobject_libname);
-        self::$vips = \FFI::cdef($vips_decls, $vips_libname);
+        self::$vips = \FFI::cdef($vips_decls, self::getLibPath() . $vips_libname);
 
         # Useful for debugging
         # self::$vips->vips_leak_set(1);
